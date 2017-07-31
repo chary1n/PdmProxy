@@ -11,6 +11,7 @@ from tornado.options import parse_command_line, options, define
 #             cls._instance = orig.__new__(cls, *args, **kw)
 #         return cls._instance
 
+
 class MainWindow(object):
 
 
