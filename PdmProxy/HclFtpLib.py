@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import ftplib
+import json
 import logging
 import os
+import urllib
 from ftplib import FTP, socket
 
 _logger = logging.getLogger(__name__)
@@ -12,20 +14,33 @@ ch.setFormatter(formatter)
 _logger.addHandler(ch)
 
 
-BUFFER_SIZE = 261142
+BUFFER_SIZE = 262144
+ROBOTIME_CHECKIP_URL = "http://erp.robotime.com/linkloving_app_api/is_inner_ip"
+
 class HclFtpLib(object):
 
     def __init__(self, ip_addr='112.80.45.130', port='21', debug_lv=0, login_name='pdm', pwd='robotime', op_path='/home/pdm/', direct_connect=True):
         self.ftp = FTP()
-        self.ip_addr = ip_addr
+        is_inner_ip = self.check_ip()
+        print("是否为局域网ip:" + str(is_inner_ip))
+        if is_inner_ip:
+            self.ip_addr = '192.168.2.6'
+        else:
+            self.ip_addr = '112.80.45.130'
         self.port = port
         self.debug_lv = debug_lv
         self.login_name = login_name
         self.pwd = pwd
         self.op_path = op_path
-
         if direct_connect:
             self.connect()
+    def check_ip(self):
+        res = urllib.urlopen(ROBOTIME_CHECKIP_URL)
+        if res.code == 200:
+            content = res.readline()
+            return json.loads(content).get("res_code")
+        else:
+            return False
 
     def connect(self):
         # 打开调试级别2，显示详细信息;0为关闭调试信息
