@@ -23,7 +23,7 @@ class HclFtpLib(object):
         self.ftp = FTP()
         is_inner_ip = self.check_ip()
         print("是否为局域网ip:" + str(is_inner_ip))
-        if is_inner_ip:
+        if is_inner_ip == 1:
             self.ip_addr = '192.168.2.6'
         else:
             self.ip_addr = '112.80.45.130'
@@ -49,6 +49,7 @@ class HclFtpLib(object):
         # 连接
         try:
             self.ftp.connect(self.ip_addr, self.port)
+            print(u"连接FTP成功")
         except socket.error, e:
             _logger.error((u"%s addr:%s, port:%s"% (e, self.ip_addr, self.ip_addr)))
             return
