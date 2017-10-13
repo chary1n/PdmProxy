@@ -12,10 +12,10 @@ ch.setFormatter(formatter)
 _logger.addHandler(ch)
 
 
-BUFFER_SIZE = 4096
+BUFFER_SIZE = 261142
 class HclFtpLib(object):
 
-    def __init__(self, ip_addr='192.168.2.6', port='21', debug_lv=0, login_name='pdm', pwd='robotime', op_path='/home/pdm/', direct_connect=True):
+    def __init__(self, ip_addr='112.80.45.130', port='21', debug_lv=0, login_name='pdm', pwd='robotime', op_path='/home/pdm/', direct_connect=True):
         self.ftp = FTP()
         self.ip_addr = ip_addr
         self.port = port
@@ -68,7 +68,7 @@ class HclFtpLib(object):
 
     def download_file(self, local_file, remote_file):
         file_handler = open(local_file, 'wb')
-        self.ftp.retrbinary("RETR " + remote_file, file_handler.write)
+        self.ftp.retrbinary("RETR " + remote_file, file_handler.write, blocksize=BUFFER_SIZE)
         file_handler.close()
         return True
 

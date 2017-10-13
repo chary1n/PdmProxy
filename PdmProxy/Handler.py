@@ -5,6 +5,7 @@ import tkFileDialog
 import os
 
 import tornado
+import win32con
 
 from HclFtpLib import HclFtpLib
 
@@ -90,9 +91,10 @@ class DownloadFileHandler(tornado.web.RequestHandler):
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         remote_file = self.request.arguments.get("remotefile")[0]
         sysstr = platform.system()
+        file_name = os.path.basename(remote_file)
         file_path = ''
         if sysstr == 'Windows':
-            dlg = win32ui.CreateFileDialog(0)
+            dlg = win32ui.CreateFileDialog(0, "*.py", file_name, 0)
             dlg.DoModal()
             file_path = dlg.GetPathName()
             file_path = file_path.decode('gbk')
@@ -102,7 +104,6 @@ class DownloadFileHandler(tornado.web.RequestHandler):
         print file_path
         if not file_path:
             return self.write({"result": "2"})
-        file_name = os.path.basename(remote_file)
         ftp = HclFtpLib()
         # def download_callback(buf):
         #     global send_size

@@ -55,7 +55,7 @@ base = None
 if sys.platform == "win32":
     base = "Win32GUI"
 setup(  name = "PdmProxy",
-        version = "0.1",
+        version = "0.2",
         description = "PdmProxy!",
         options = {"build_exe": build_exe_options,
                    # "bdist_msi": bdist_msi_options
