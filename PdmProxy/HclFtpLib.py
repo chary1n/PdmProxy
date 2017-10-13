@@ -81,9 +81,12 @@ class HclFtpLib(object):
         file_handle.close()
         return True
 
-    def download_file(self, local_file, remote_file):
+    def download_file(self, local_file, remote_file, cb=None):
         file_handler = open(local_file, 'wb')
-        self.ftp.retrbinary("RETR " + remote_file, file_handler.write, blocksize=BUFFER_SIZE)
+        def download_cb(buf):
+            file_handler.write(buf)
+            cb(buf)
+        self.ftp.retrbinary("RETR " + remote_file, download_cb, blocksize=BUFFER_SIZE)
         file_handler.close()
         return True
 
@@ -100,7 +103,8 @@ class HclFtpLib(object):
 
         path_list.reverse()
         return path_list
-
+    def size(self, filepath):
+        return self.ftp.size(filepath)
     def create_dir(self, my_path):
         paths = self._split_path(my_path)
         for path in paths:

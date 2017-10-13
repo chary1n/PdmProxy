@@ -5,20 +5,28 @@ import tkFileDialog
 import os
 
 import tornado
-import win32con
+try:
+    import win32con
+except ImportError:
+    print("1111")
 
 from HclFtpLib import HclFtpLib
-
-import win32ui
+try:
+    import win32ui
+except ImportError:
+    print("ss")
 
 from tornado.options import define
 import tornado.web
 
 global upload_progress_dict
 upload_progress_dict = {}
-
 global send_size
 send_size = 0
+
+#下载速度
+global rec_size
+rec_size = 0
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -51,7 +59,7 @@ class UploadFileHandler(tornado.web.RequestHandler):
         def upload_callback(buf):
             global send_size
             send_size = send_size + len(buf)
-            print(u'文件上传中'+ str(send_size / total_size * 100) + '%')
+            print(u'文件上传中'+ str(round(send_size / total_size * 100, 2)) + '%')
         ftp = HclFtpLib()
         ret = ftp.upload_file(file_path, new_remote_file, callback=upload_callback)
         if ret:
@@ -110,5 +118,10 @@ class DownloadFileHandler(tornado.web.RequestHandler):
         #     send_size = send_size + len(buf)
         #     total_size = ftp.ftp.size(file_name)
         #     print(u'文件下载中'+ str(send_size / total_size * 100) + '%')
-        ftp.download_file(local_file=os.path.join(file_path, file_name), remote_file=remote_file)
+        total_size = ftp.size(remote_file)
+        def download_callback(buf):
+            global rec_size
+            rec_size = rec_size + len(buf)
+            print(u'文件下载中'+ str(round(rec_size * 1.0/ total_size * 100, 2)) + '%')
+        ftp.download_file(local_file=os.path.join(file_path, file_name), remote_file=remote_file, cb=download_callback)
         return self.write({"result": "1"})
