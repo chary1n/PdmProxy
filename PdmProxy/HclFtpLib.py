@@ -19,14 +19,14 @@ ROBOTIME_CHECKIP_URL = "http://erp.robotime.com/linkloving_app_api/is_inner_ip"
 
 class HclFtpLib(object):
 
-    def __init__(self, ip_addr='112.80.45.130', port='21', debug_lv=0, login_name='pdm', pwd='robotime', op_path='/home/pdm/', direct_connect=True):
+    def __init__(self, ip_addr='112.80.45.130',ip_addr_out='', port='21', debug_lv=0, login_name='pdm', pwd='robotime', op_path='/home/pdm/', direct_connect=True):
         self.ftp = FTP()
         is_inner_ip = self.check_ip()
         print(u"是否为局域网ip:" + str(is_inner_ip))
         if is_inner_ip == 1:
-            self.ip_addr = '192.168.2.6'
+            pass
         else:
-            self.ip_addr = '112.80.45.130'
+            self.ip_addr = ip_addr_out
         self.port = port
         self.debug_lv = debug_lv
         self.login_name = login_name

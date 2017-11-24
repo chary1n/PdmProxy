@@ -28,6 +28,14 @@ send_size = 0
 global rec_size
 rec_size = 0
 
+def parse_pdm_server_info(info):
+    return {"op_path": info.get("op_path")[0],
+    "pdm_account": info.get("pdm_account")[0],
+    "pdm_external_ip": info.get("pdm_external_ip")[0],
+    "pdm_intranet_ip": info.get("pdm_intranet_ip")[0],
+    "pdm_port": info.get("pdm_port")[0],
+    "pdm_pwd": info.get("pdm_pwd")[0],
+    }
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.set_header("Access-Control-Allow-Origin", "*")
@@ -44,12 +52,15 @@ class UploadFileHandler(tornado.web.RequestHandler):
         argument = self.request.arguments
         remote_file = argument.get("remotefile")[0]
         file_path = self.adapt_platform_to_show_filedialog()
-        file_path = file_path.decode('gbk')
+        try:
+            file_path = file_path.decode('gbk')
+        except UnicodeEncodeError:
+            pass
         if not file_path:
             return self.write({"result": "-1"})
-        return self.write(self.do_get(remote_file, file_path))
+        return self.write(self.do_get(remote_file, file_path, parse_pdm_server_info(argument)))
 
-    def do_get(self, remote_file, file_path):
+    def do_get(self, remote_file, file_path, server_info):
         global  send_size
         send_size = 0
         new_remote_file = remote_file + os.path.splitext(file_path)[1]
@@ -60,7 +71,13 @@ class UploadFileHandler(tornado.web.RequestHandler):
             global send_size
             send_size = send_size + len(buf)
             print(u'文件上传中'+ str(round(send_size / total_size * 100, 2)) + '%')
-        ftp = HclFtpLib()
+        ftp = HclFtpLib(ip_addr=server_info["pdm_intranet_ip"],
+                        ip_addr_out=server_info["pdm_external_ip"],
+                        login_name=server_info["pdm_account"],
+                        port=server_info["pdm_port"],
+                        pwd=server_info["pdm_pwd"],
+                        op_path=server_info["op_path"],
+                        )
         ret = ftp.upload_file(file_path, new_remote_file, callback=upload_callback)
         if ret:
             return {"result": "1",
@@ -98,6 +115,7 @@ class DownloadFileHandler(tornado.web.RequestHandler):
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         remote_file = self.request.arguments.get("remotefile")[0]
+        server_info = parse_pdm_server_info(self.request.arguments)
         sysstr = platform.system()
         file_name = os.path.basename(remote_file)
         file_path = ''
@@ -112,7 +130,13 @@ class DownloadFileHandler(tornado.web.RequestHandler):
         print file_path
         if not file_path:
             return self.write({"result": "2"})
-        ftp = HclFtpLib()
+        ftp = HclFtpLib(ip_addr=server_info["pdm_intranet_ip"],
+                        ip_addr_out=server_info["pdm_external_ip"],
+                        login_name=server_info["pdm_account"],
+                        port=server_info["pdm_port"],
+                        pwd=server_info["pdm_pwd"],
+                        op_path=server_info["op_path"],
+                        )
         # def download_callback(buf):
         #     global send_size
         #     send_size = send_size + len(buf)
@@ -124,4 +148,4 @@ class DownloadFileHandler(tornado.web.RequestHandler):
             rec_size = rec_size + len(buf)
             print(u'文件下载中'+ str(round(rec_size * 1.0/ total_size * 100, 2)) + '%')
         ftp.download_file(local_file=os.path.join(file_path, file_name), remote_file=remote_file, cb=download_callback)
-        return self.write({"result": "1"})
+        return self.write({"result": "1","chose_path":file_path,"file_name":file_name})
