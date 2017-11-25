@@ -53,13 +53,14 @@ class MainWindow(object):
     def startServer(self):
         define('port', default=8088, help='run this port', type=int)
         parse_command_line()
-        from Handler import UploadFileHandler, DownloadFileHandler, GetProgress, MainHandler
+        from Handler import UploadFileHandler, DownloadFileHandler, GetProgress, MainHandler, OpenFileBrowserHandler
         app = tornado.web.Application(
             handlers=[
                 ('/',MainHandler),
                 ('/uploadfile', UploadFileHandler),
                 ('/downloadfile', DownloadFileHandler),
-                ('/getprogress', GetProgress)
+                ('/getprogress', GetProgress),
+                ('/open_file_browser', OpenFileBrowserHandler)
             ],
             debug= False,
             )

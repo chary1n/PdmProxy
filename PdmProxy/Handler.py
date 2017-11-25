@@ -149,3 +149,19 @@ class DownloadFileHandler(tornado.web.RequestHandler):
             print(u'文件下载中'+ str(round(rec_size * 1.0/ total_size * 100, 2)) + '%')
         ftp.download_file(local_file=os.path.join(file_path, file_name), remote_file=remote_file, cb=download_callback)
         return self.write({"result": "1","chose_path":file_path,"file_name":file_name})
+
+class OpenFileBrowserHandler(tornado.web.RequestHandler):
+    def get(self, *args, **kwargs):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
+        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        file_path = self.request.arguments.get("file_path")[0]
+        file_name = self.request.arguments.get("file_name")[0]
+        direct_open = self.request.arguments.get("direct_open")[0]
+        import subprocess, sys
+        opener ="open" if sys.platform == "darwin" else "xdg-open"
+        if direct_open:
+            new_path = os.path.join(file_path, file_name)
+        else:
+            new_path = file_path
+        subprocess.call([opener, new_path])
