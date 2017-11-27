@@ -24,7 +24,7 @@ class HclFtpLib(object):
         is_inner_ip = self.check_ip()
         print(u"是否为局域网ip:" + str(is_inner_ip))
         if is_inner_ip == 1:
-            pass
+            self.ip_addr = ip_addr
         else:
             self.ip_addr = ip_addr_out
         self.port = port
