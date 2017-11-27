@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "PdmProxy"
-#define MyAppVersion "1.1"
+#define MyAppVersion "1.3"
 #define MyAppPublisher "Robotime, Inc."
 #define MyAppURL "http://www.robotime.com/"
 #define MyAppExeName "Main.exe"
@@ -33,8 +33,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\123\Desktop\PdmProxyRoot\PdmProxy\PdmProxy\dist\Main.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\123\Desktop\PdmProxyRoot\PdmProxy\PdmProxy\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\CharlieWorkspace\PdmProxy\PdmProxy\dist\Main.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\CharlieWorkspace\PdmProxy\PdmProxy\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
