@@ -114,6 +114,8 @@ class DownloadFileHandler(tornado.web.RequestHandler):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        global rec_size
+        rec_size = 0
         remote_file = self.request.arguments.get("remotefile")[0]
         server_info = parse_pdm_server_info(self.request.arguments)
         sysstr = platform.system()
@@ -166,7 +168,7 @@ class OpenFileBrowserHandler(tornado.web.RequestHandler):
                 os.startfile(os.path.join(file_path, file_name))
             else:
                 os.startfile(file_path)
-            return {"result": 1}
+            return self.write({"result": "1"})
         else:
             opener = "xdg-open"
         if direct_open:
