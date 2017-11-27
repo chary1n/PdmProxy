@@ -162,11 +162,11 @@ class OpenFileBrowserHandler(tornado.web.RequestHandler):
         if sys.platform == "darwin":
             opener ="open"
         elif sys.platform == 'win32':
-            if direct_open:
-                os.startfile(file_path)
-            else:
+            if direct_open == 'true':
                 os.startfile(os.path.join(file_path, file_name))
-            return {"result": "1"}
+            else:
+                os.startfile(file_path)
+            return {"result": 1}
         else:
             opener = "xdg-open"
         if direct_open:
