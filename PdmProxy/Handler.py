@@ -159,7 +159,16 @@ class OpenFileBrowserHandler(tornado.web.RequestHandler):
         file_name = self.request.arguments.get("file_name")[0]
         direct_open = self.request.arguments.get("direct_open")[0]
         import subprocess, sys
-        opener ="open" if sys.platform == "darwin" else "xdg-open"
+        if sys.platform == "darwin":
+            opener ="open"
+        elif sys.platform == 'win32':
+            if direct_open:
+                os.startfile(file_path)
+            else:
+                os.startfile(os.path.join(file_path, file_name))
+            return {"result": "1"}
+        else:
+            opener = "xdg-open"
         if direct_open:
             new_path = os.path.join(file_path, file_name)
         else:
