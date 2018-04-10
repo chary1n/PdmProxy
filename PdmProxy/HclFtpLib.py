@@ -21,7 +21,7 @@ class HclFtpLib(object):
 
     def __init__(self, ip_addr='112.80.45.130',ip_addr_out='', port='21', debug_lv=0, login_name='pdm', pwd='robotime', op_path='/home/pdm/', direct_connect=True):
         self.ftp = FTP()
-        is_inner_ip = self.check_ip()
+        is_inner_ip = self.check_ip(ip_addr)
         print(u"是否为局域网ip:" + str(is_inner_ip))
         if is_inner_ip == 1:
             self.ip_addr = ip_addr
@@ -34,14 +34,17 @@ class HclFtpLib(object):
         self.op_path = op_path
         if direct_connect:
             self.connect()
-    def check_ip(self):
-        res = urllib.urlopen(ROBOTIME_CHECKIP_URL)
-        if res.code == 200:
-            content = res.readline()
-            return json.loads(content).get("res_code")
+    def check_ip(self, ip_addr):
+        res = os.system('ping -n 2 -w 1 %s' % ip_addr)
+        if not res: #ping通
+            return True
         else:
-            return False
-
+            res = urllib.urlopen(ROBOTIME_CHECKIP_URL)
+            if res.code == 200:
+                content = res.readline()
+                return json.loads(content).get("res_code")
+            else:
+                return False
     def connect(self):
         # 打开调试级别2，显示详细信息;0为关闭调试信息
         self.ftp.set_debuglevel(self.debug_lv)

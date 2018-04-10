@@ -47,7 +47,7 @@ class MainHandler(tornado.web.RequestHandler):
 class UploadFileHandler(tornado.web.RequestHandler):
     def get(self, *args, **kwargs):
         self.set_header("Access-Control-Allow-Origin", "*")
-        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
+        self.set_header("Access-Control-Allow-Headers", "X-Requested-With")
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         argument = self.request.arguments
         remote_file = argument.get("remotefile")[0]
