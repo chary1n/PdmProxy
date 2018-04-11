@@ -4,6 +4,9 @@ import tkFileDialog
 
 import os
 
+import sys
+
+import time
 import tornado
 try:
     import win32con
@@ -36,6 +39,10 @@ def parse_pdm_server_info(info):
     "pdm_port": info.get("pdm_port")[0],
     "pdm_pwd": info.get("pdm_pwd")[0],
     }
+
+def show_progress(pre_title, int_progress, float_progress):
+    sys.stdout.write(u'\r%s:%s%% ' % (pre_title, str(float_progress)))
+    sys.stdout.flush()
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.set_header("Access-Control-Allow-Origin", "*")
@@ -70,7 +77,10 @@ class UploadFileHandler(tornado.web.RequestHandler):
         def upload_callback(buf):
             global send_size
             send_size = send_size + len(buf)
-            print(u'文件上传中'+ str(round(send_size / total_size * 100, 2)) + '%')
+            rounded_progress = round(rec_size * 1.0 / total_size * 100, 2)
+            int_progress = int(rec_size * 1.0 / total_size * 100)
+            show_progress(u"上传中", int_progress, rounded_progress)
+            # print(u'文件上传中'+ str(round(send_size / total_size * 100, 2)) + '%')
         ftp = HclFtpLib(ip_addr=server_info["pdm_intranet_ip"],
                         ip_addr_out=server_info["pdm_external_ip"],
                         login_name=server_info["pdm_account"],
@@ -79,6 +89,7 @@ class UploadFileHandler(tornado.web.RequestHandler):
                         op_path=server_info["op_path"],
                         )
         ret = ftp.upload_file(file_path, new_remote_file, callback=upload_callback)
+        print u"-------******--------上传完成-------******--------"
         if ret:
             return {"result": "1",
                                "path": new_remote_file,
@@ -148,9 +159,14 @@ class DownloadFileHandler(tornado.web.RequestHandler):
         def download_callback(buf):
             global rec_size
             rec_size = rec_size + len(buf)
-            print(u'文件下载中'+ str(round(rec_size * 1.0/ total_size * 100, 2)) + '%')
+            rounded_progress = round(rec_size * 1.0 / total_size * 100, 2)
+            int_progress = int(rec_size * 1.0/ total_size * 100)
+            show_progress(u"下载中", int_progress, rounded_progress)
+            # sys.stdout.write(u'\r下载中:[%s%s]%s' % ("*" * int_progress, " " * (100 - int_progress), str(rounded_progress)) + '%')
+            # sys.stdout.flush()
         ftp.download_file(local_file=os.path.join(file_path, file_name), remote_file=remote_file, cb=download_callback)
-        return self.write({"result": "1","chose_path":file_path,"file_name":file_name})
+        print u"-------******--------下载完成-------******--------"
+        return self.write({"result": "1", "chose_path": file_path, "file_name": file_name})
 
 class OpenFileBrowserHandler(tornado.web.RequestHandler):
     def get(self, *args, **kwargs):

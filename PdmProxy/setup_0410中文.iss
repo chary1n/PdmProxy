@@ -25,6 +25,7 @@ OutputDir=C:\Users\Administrator\Desktop
 OutputBaseFilename=Erp´úÀíÈí¼þ0410
 Compression=lzma
 SolidCompression=yes
+SetupIconFile=C:\Users\Administrator\PycharmProjects\PdmProxy\PdmProxy\logo.ico
 
 [Languages]
 Name: "chinese"; MessagesFile: "compiler:Languages\chinese.isl"
@@ -33,8 +34,8 @@ Name: "chinese"; MessagesFile: "compiler:Languages\chinese.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\Administrator\Desktop\PdmProxy-master\PdmProxy\dist\Main.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Administrator\Desktop\PdmProxy-master\PdmProxy\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\Administrator\PycharmProjects\PdmProxy\PdmProxy\dist\Main.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\Administrator\PycharmProjects\PdmProxy\PdmProxy\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
