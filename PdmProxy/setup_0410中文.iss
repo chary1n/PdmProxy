@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "PdmProxy"
-#define MyAppVersion "1.3.410"
+#define MyAppVersion "1.3.427"
 #define MyAppPublisher "Linkloving"
 #define MyAppURL "http://www.linkloving.com/"
 #define MyAppExeName "Main.exe"
@@ -22,7 +22,7 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=C:\Users\Administrator\Desktop
-OutputBaseFilename=Erp代理软件0410
+OutputBaseFilename=Erp代理软件0427
 Compression=lzma
 SolidCompression=yes
 SetupIconFile=C:\Users\Administrator\PycharmProjects\PdmProxy\PdmProxy\logo.ico

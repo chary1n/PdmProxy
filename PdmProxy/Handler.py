@@ -8,12 +8,14 @@ import sys
 
 import time
 import tornado
+
 try:
     import win32con
 except ImportError:
     print("1111")
 
 from HclFtpLib import HclFtpLib
+
 try:
     import win32ui
 except ImportError:
@@ -27,22 +29,26 @@ upload_progress_dict = {}
 global send_size
 send_size = 0
 
-#下载速度
+# 下载速度
 global rec_size
 rec_size = 0
 
+
 def parse_pdm_server_info(info):
     return {"op_path": info.get("op_path")[0],
-    "pdm_account": info.get("pdm_account")[0],
-    "pdm_external_ip": info.get("pdm_external_ip")[0],
-    "pdm_intranet_ip": info.get("pdm_intranet_ip")[0],
-    "pdm_port": info.get("pdm_port")[0],
-    "pdm_pwd": info.get("pdm_pwd")[0],
-    }
+            "pdm_account": info.get("pdm_account")[0],
+            "pdm_external_ip": info.get("pdm_external_ip")[0],
+            "pdm_intranet_ip": info.get("pdm_intranet_ip")[0],
+            "pdm_port": info.get("pdm_port")[0],
+            "pdm_pwd": info.get("pdm_pwd")[0],
+            }
+
 
 def show_progress(pre_title, int_progress, float_progress):
     sys.stdout.write(u'\r%s:%s%% ' % (pre_title, str(float_progress)))
     sys.stdout.flush()
+
+
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.set_header("Access-Control-Allow-Origin", "*")
@@ -50,6 +56,7 @@ class MainHandler(tornado.web.RequestHandler):
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         respon_json = tornado.escape.json_encode({"result": "1"})
         return self.write({"result": "1"})
+
 
 class UploadFileHandler(tornado.web.RequestHandler):
     def get(self, *args, **kwargs):
@@ -65,15 +72,17 @@ class UploadFileHandler(tornado.web.RequestHandler):
             pass
         if not file_path:
             return self.write({"result": "-1"})
-        return self.write(self.do_get(remote_file, file_path, parse_pdm_server_info(argument)))
+        return self.write(
+            self.do_get(remote_file, file_path, parse_pdm_server_info(argument)))
 
     def do_get(self, remote_file, file_path, server_info):
-        global  send_size
+        global send_size
         send_size = 0
         new_remote_file = remote_file + os.path.splitext(file_path)[1]
         total_size = float(os.path.getsize(file_path))
         # yield tornado.gen.Task(, args=[5])
         count = 0
+
         def upload_callback(buf):
             global send_size
             send_size = send_size + len(buf)
@@ -81,6 +90,7 @@ class UploadFileHandler(tornado.web.RequestHandler):
             int_progress = int(rec_size * 1.0 / total_size * 100)
             show_progress(u"上传中", int_progress, rounded_progress)
             # print(u'文件上传中'+ str(round(send_size / total_size * 100, 2)) + '%')
+
         ftp = HclFtpLib(ip_addr=server_info["pdm_intranet_ip"],
                         ip_addr_out=server_info["pdm_external_ip"],
                         login_name=server_info["pdm_account"],
@@ -92,8 +102,8 @@ class UploadFileHandler(tornado.web.RequestHandler):
         print u"-------******--------上传完成-------******--------"
         if ret:
             return {"result": "1",
-                               "path": new_remote_file,
-                               "choose_file_name": os.path.basename(file_path)}
+                    "path": new_remote_file,
+                    "choose_file_name": os.path.basename(file_path)}
         else:
             return {"error": "ftp create file error"}
 
@@ -110,6 +120,7 @@ class UploadFileHandler(tornado.web.RequestHandler):
 
         return file_path
 
+
 class GetProgress(tornado.web.RequestHandler):
     def get(self, *args, **kwargs):
         self.set_header("Access-Control-Allow-Origin", "*")
@@ -119,6 +130,7 @@ class GetProgress(tornado.web.RequestHandler):
         # remote_file = argument.get("remotefile")[0]
         print(upload_progress_dict or '')
         return self.write(upload_progress_dict or '')
+
 
 class DownloadFileHandler(tornado.web.RequestHandler):
     def get(self, *args, **kwargs):
@@ -133,12 +145,13 @@ class DownloadFileHandler(tornado.web.RequestHandler):
         file_name = os.path.basename(remote_file)
         file_path = ''
         if sysstr == 'Windows':
-            dlg = win32ui.CreateFileDialog(0, "*.py", file_name, 0)
+            dlg = win32ui.CreateFileDialog(0, None, file_name, 0)
             dlg.DoModal()
             file_path = dlg.GetPathName()
             file_path = file_path.decode('gbk')
-            file_path = os.path.split(file_path)[0]#win32UI 选择文件夹的时候  只能带上文件名
-        elif sysstr == 'Darwin' or sysstr == 'Linux': # mac os linux
+            file_path = os.path.split(file_path)[0]  # win32UI 选择文件夹的时候  只能带上文件名
+
+        elif sysstr == 'Darwin' or sysstr == 'Linux':  # mac os linux
             file_path = tkFileDialog.askdirectory()
         print file_path
         if not file_path:
@@ -156,17 +169,22 @@ class DownloadFileHandler(tornado.web.RequestHandler):
         #     total_size = ftp.ftp.size(file_name)
         #     print(u'文件下载中'+ str(send_size / total_size * 100) + '%')
         total_size = ftp.size(remote_file)
+
         def download_callback(buf):
             global rec_size
             rec_size = rec_size + len(buf)
             rounded_progress = round(rec_size * 1.0 / total_size * 100, 2)
-            int_progress = int(rec_size * 1.0/ total_size * 100)
+            int_progress = int(rec_size * 1.0 / total_size * 100)
             show_progress(u"下载中", int_progress, rounded_progress)
             # sys.stdout.write(u'\r下载中:[%s%s]%s' % ("*" * int_progress, " " * (100 - int_progress), str(rounded_progress)) + '%')
             # sys.stdout.flush()
-        ftp.download_file(local_file=os.path.join(file_path, file_name), remote_file=remote_file, cb=download_callback)
+
+        ftp.download_file(local_file=os.path.join(file_path, file_name),
+                          remote_file=remote_file, cb=download_callback)
         print u"-------******--------下载完成-------******--------"
-        return self.write({"result": "1", "chose_path": file_path, "file_name": file_name})
+        return self.write(
+            {"result": "1", "chose_path": file_path, "file_name": file_name})
+
 
 class OpenFileBrowserHandler(tornado.web.RequestHandler):
     def get(self, *args, **kwargs):
@@ -178,7 +196,7 @@ class OpenFileBrowserHandler(tornado.web.RequestHandler):
         direct_open = self.request.arguments.get("direct_open")[0]
         import subprocess, sys
         if sys.platform == "darwin":
-            opener ="open"
+            opener = "open"
         elif sys.platform == 'win32':
             if direct_open == 'true':
                 os.startfile(os.path.join(file_path, file_name))
