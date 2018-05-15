@@ -18,5 +18,5 @@ root = MainWindow(width=500, height=300)
 # root.mainloop()
 try:
     root.startServer()
-except socket.error, e:
-    print u'端口被占用,不能重复启动此程序。'
+except socket.error as e:
+    print(u'端口被占用,不能重复启动此程序。')

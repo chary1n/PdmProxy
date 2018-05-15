@@ -53,7 +53,7 @@ class HclFtpLib(object):
         try:
             self.ftp.connect(self.ip_addr, self.port)
             print(u"连接FTP成功")
-        except socket.error, e:
+        except socket.error as e:
             _logger.error((u"%s addr:%s, port:%s"% (e, self.ip_addr, self.port)))
             return
         # 登录
@@ -64,7 +64,7 @@ class HclFtpLib(object):
             # 切换目录
             self.ftp.cwd(self.op_path)
 
-        except ftplib.error_perm, e:
+        except ftplib.error_perm as e:
             _logger.error((u"%s login:%s, pwd:%s, path:%s" % (e, self.login_name, self.pwd, self.op_path)))
             return
 

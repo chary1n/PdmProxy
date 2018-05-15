@@ -15,7 +15,6 @@ except ImportError:
     print("1111")
 
 from HclFtpLib import HclFtpLib
-
 try:
     import win32ui
 except ImportError:
@@ -99,7 +98,7 @@ class UploadFileHandler(tornado.web.RequestHandler):
                         op_path=server_info["op_path"],
                         )
         ret = ftp.upload_file(file_path, new_remote_file, callback=upload_callback)
-        print u"-------******--------上传完成-------******--------"
+        print(u"-------******--------上传完成-------******--------")
         if ret:
             return {"result": "1",
                     "path": new_remote_file,
@@ -116,7 +115,7 @@ class UploadFileHandler(tornado.web.RequestHandler):
             file_path = dlg.GetPathName()
         elif sysstr == 'Darwin' or sysstr == 'Linux':  # mac os linux
             file_path = tkFileDialog.askopenfilename()
-        print file_path
+        print(file_path)
 
         return file_path
 
@@ -153,7 +152,7 @@ class DownloadFileHandler(tornado.web.RequestHandler):
 
         elif sysstr == 'Darwin' or sysstr == 'Linux':  # mac os linux
             file_path = tkFileDialog.askdirectory()
-        print file_path
+        print(file_path)
         if not file_path:
             return self.write({"result": "2"})
         ftp = HclFtpLib(ip_addr=server_info["pdm_intranet_ip"],
@@ -181,7 +180,7 @@ class DownloadFileHandler(tornado.web.RequestHandler):
 
         ftp.download_file(local_file=os.path.join(file_path, file_name),
                           remote_file=remote_file, cb=download_callback)
-        print u"-------******--------下载完成-------******--------"
+        print(u"-------******--------下载完成-------******--------")
         return self.write(
             {"result": "1", "chose_path": file_path, "file_name": file_name})
 
