@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import threading
-from Tkinter import Tk, Label, StringVar
+from Tkinter import Tk, Label
 
 import tornado
 from tornado.options import parse_command_line, options, define
@@ -29,6 +29,8 @@ class MainWindow(object):
         self.center_window(width, height)
         self.label = Label(self.main_window, text=u'代理服务器未开启')
         self.label.pack()
+        self.progress = Label(self.main_window, text=u'暂无进行中的操作...')
+        self.progress.pack()
         # Button(self.main_window, text=u"开启服务器", command=lambda: self.thread_it(self.startServer)).pack()
         # self.file_progress_label = Label(self.main_window, text=self.a)
         # self.file_progress_label.pack()
@@ -65,7 +67,7 @@ class MainWindow(object):
         from Handler import UploadFileHandler, DownloadFileHandler, GetProgress, MainHandler, OpenFileBrowserHandler
         app = tornado.web.Application(
             handlers=[
-                ('/',MainHandler),
+                ('/', MainHandler),
                 ('/uploadfile', UploadFileHandler),
                 ('/downloadfile', DownloadFileHandler),
                 ('/getprogress', GetProgress),
