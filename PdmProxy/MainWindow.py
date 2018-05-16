@@ -20,7 +20,9 @@ class MainWindow(object):
         self.main_window = Tk()
         self.main_window.title(title)
         self.center_window(width, height)
-        Label(self.main_window, text=u'代理服务器已开启').pack()
+        self.label = Label(self.main_window, text=u'代理服务器未开启')
+        self.label.pack()
+        # Button(self.main_window, text=u"开启服务器", command=lambda: self.thread_it(self.startServer)).pack()
         # self.file_progress_label = Label(self.main_window, text=self.a)
         # self.file_progress_label.pack()
 
@@ -64,10 +66,19 @@ class MainWindow(object):
             ],
             debug= False,
             )
-        print(u'服务器开启中')
-        app.listen(options.port)
+        self.label['text'] = u'服务器开启中'
+        self.main_window.update()
+        _logger.info(u"服务器开启中")
+        try:
+            app.listen(options.port)
+        except Exception as e:
+            self.label['text'] = e
+            self.main_window.update()
+        self.label['text'] = u'服务器已开启'
+        self.main_window.update()
         # http_server = tornado.httpserver.HTTPServer(app)
         # http_server.bind(options.port)
         # http_server.start(1)
-        print(u'服务器已开启')
+        # print(u'服务器已开启')
         tornado.ioloop.IOLoop.instance().start()
+
