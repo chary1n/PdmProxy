@@ -3,6 +3,7 @@ import ftplib
 import json
 import logging
 import os
+import platform
 import urllib
 from ftplib import FTP, socket
 
@@ -35,7 +36,18 @@ class HclFtpLib(object):
         if direct_connect:
             self.connect()
     def check_ip(self, ip_addr):
-        res = os.system('ping -n 2 -w 1 %s' % ip_addr)
+        sysstr = platform.system()
+
+        if sysstr == 'Windows':
+            ping_cmd = 'ping -n 2 -w 1 %s' % ip_addr
+            # dlg = win32ui.CreateFileDialog(1)
+            # dlg.DoModal()
+            # file_path = dlg.GetPathName()
+        elif sysstr == 'Darwin' or sysstr == 'Linux':  # mac os linux
+            ping_cmd = 'ping -c 2 %s' % ip_addr
+        else:
+            ping_cmd = 'ping -c 2 %s' % ip_addr
+        res = os.system(ping_cmd)
         if not res: #ping通
             return True
         else:
