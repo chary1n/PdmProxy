@@ -156,10 +156,11 @@ class DownloadFileHandler(tornado.web.RequestHandler):
         remote_file = self.request.arguments.get("remotefile")[0]
         server_info = parse_pdm_server_info(self.request.arguments)
         sysstr = platform.system()
-        file_name = os.path.basename(remote_file)
         file_path = ''
+
+        #  选择存储路径
         if sysstr == 'Windows':
-            pass
+                pass
             # dlg = win32ui.CreateFileDialog(0, None, file_name, 0)
             # dlg.DoModal()
             # file_path = dlg.GetPathName()
@@ -168,9 +169,8 @@ class DownloadFileHandler(tornado.web.RequestHandler):
 
         elif sysstr == 'Darwin' or sysstr == 'Linux':  # mac os linux
             file_path = tkFileDialog.askdirectory()
-        _logger.info(file_path)
-        if not file_path:
-            return self.write({"result": "2"})
+
+        #  初始化ftp
         ftp = HclFtpLib(ip_addr=server_info["pdm_intranet_ip"],
                         ip_addr_out=server_info["pdm_external_ip"],
                         login_name=server_info["pdm_account"],
@@ -178,28 +178,47 @@ class DownloadFileHandler(tornado.web.RequestHandler):
                         pwd=server_info["pdm_pwd"],
                         op_path=server_info["op_path"],
                         )
+
+        if type(remote_file) == list:
+            file_names = remote_file
+            file_name = os.path.basename(remote_file[0])
+        else:
+            file_names = [remote_file]
+            file_name = os.path.basename(remote_file)
+        _logger.info(file_path)
+        if not file_path:
+            return self.write({"result": "2"})
+
+        self.download_file(ftp, file_names, file_path)
         # def download_callback(buf):
         #     global send_size
         #     send_size = send_size + len(buf)
         #     total_size = ftp.ftp.size(file_name)
         #     print(u'文件下载中'+ str(send_size / total_size * 100) + '%')
-        total_size = ftp.size(remote_file)
 
-        def download_callback(buf):
-            global rec_size
-            rec_size = rec_size + len(buf)
-            rounded_progress = round(rec_size * 1.0 / total_size * 100, 2)
-            int_progress = int(rec_size * 1.0 / total_size * 100)
-            show_progress(u"下载中", int_progress, rounded_progress)
-            # sys.stdout.write(u'\r下载中:[%s%s]%s' % ("*" * int_progress, " " * (100 - int_progress), str(rounded_progress)) + '%')
-            # sys.stdout.flush()
-
-        ftp.download_file(local_file=os.path.join(file_path, file_name),
-                          remote_file=remote_file, cb=download_callback)
-        _logger.info(u"-------******--------下载完成-------******--------")
-        show_progress(u"-------******--------下载完成-------******--------", 100, 100)
         return self.write(
             {"result": "1", "chose_path": file_path, "file_name": file_name})
+
+    def download_file(self, ftp, remote_files, file_path):
+        index = 1
+        total = len(remote_files)
+        for remote_file in remote_files:
+            total_size = ftp.size(remote_file)
+            file_name = os.path.basename(remote_file)
+            def download_callback(buf):
+                global rec_size
+                rec_size = rec_size + len(buf)
+                rounded_progress = round(rec_size * 1.0 / total_size * 100, 2)
+                int_progress = int(rec_size * 1.0 / total_size * 100)
+                show_progress(u"下载中", int_progress, rounded_progress)
+                # sys.stdout.write(u'\r下载中:[%s%s]%s' % ("*" * int_progress, " " * (100 - int_progress), str(rounded_progress)) + '%')
+                # sys.stdout.flush()
+
+            ftp.download_file(local_file=os.path.join(file_path, file_name),
+                              remote_file=remote_file, cb=download_callback)
+            _logger.info(u"-------******--------(%d/%d)下载完成-------******--------" % (index, total))
+            show_progress(u"-------******--------(%d/%d)下载完成-------******--------" % (index, total), 100, 100)
+            index = index + 1
 
 
 class OpenFileBrowserHandler(tornado.web.RequestHandler):
