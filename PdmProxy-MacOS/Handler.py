@@ -94,20 +94,28 @@ class UploadFileHandler(tornado.web.RequestHandler):
             print(rounded_progress)
             show_progress(u"上传中", int_progress, rounded_progress)
             # print(u'文件上传中'+ str(round(send_size / total_size * 100, 2)) + '%')
+        try:
+            ftp = HclFtpLib(ip_addr=server_info["pdm_intranet_ip"],
+                            ip_addr_out=server_info["pdm_external_ip"],
+                            login_name=server_info["pdm_account"],
+                            port=server_info["pdm_port"],
+                            pwd=server_info["pdm_pwd"],
+                            op_path=server_info["op_path"],
+                            )
+        except:
+            return {
+                "result": "-1",
+                "msg": u"文件服务器连接失败,请检查设置."
+            }
 
-        ftp = HclFtpLib(ip_addr=server_info["pdm_intranet_ip"],
-                        ip_addr_out=server_info["pdm_external_ip"],
-                        login_name=server_info["pdm_account"],
-                        port=server_info["pdm_port"],
-                        pwd=server_info["pdm_pwd"],
-                        op_path=server_info["op_path"],
-                        )
         ret = ftp.upload_file(file_path, new_remote_file, callback=upload_callback)
         _logger.info(u"-------******--------上传完成-------******--------")
         show_progress(u"-------******--------上传完成-------******--------", 100, 100)
         if ret:
             return {"result": "1",
                     "path": new_remote_file,
+                    "size": total_size,
+                    "suffix": os.path.splitext(file_path)[1],
                     "choose_file_name": os.path.basename(file_path)}
         else:
             return {"error": "ftp create file error"}
@@ -213,7 +221,7 @@ class OpenFileBrowserHandler(tornado.web.RequestHandler):
             return self.write({"result": "1"})
         else:
             opener = "xdg-open"
-        if direct_open:
+        if direct_open == 'true':
             new_path = os.path.join(file_path, file_name)
         else:
             new_path = file_path
