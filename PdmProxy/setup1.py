@@ -8,4 +8,5 @@ data_files = [("Microsoft.VC90.MFC", mfcfiles),
               ]
 setup(console=[{"script": "Main.py", "icon_resources": [(0, "logo.ico")]}],
       data_files=data_files,
+      version='2.0'
       )
