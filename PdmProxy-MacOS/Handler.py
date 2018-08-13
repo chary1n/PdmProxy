@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import logging
 import platform
 import tkFileDialog
@@ -147,13 +148,19 @@ class GetProgress(tornado.web.RequestHandler):
 
 
 class DownloadFileHandler(tornado.web.RequestHandler):
+    def post(self, *args, **kwargs):
+        self.get(args, kwargs)
     def get(self, *args, **kwargs):
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         global rec_size
         rec_size = 0
-        remote_file = self.request.arguments.get("remotefile")[0]
+        remote_file = self.get_argument("remotefile")
+        try:
+            remote_file = json.loads(remote_file)
+        except ValueError:
+            pass
         server_info = parse_pdm_server_info(self.request.arguments)
         sysstr = platform.system()
         file_path = ''
