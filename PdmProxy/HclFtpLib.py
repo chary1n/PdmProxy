@@ -51,12 +51,12 @@ class HclFtpLib(object):
         if not res: #ping通
             return True
         else:
-            res = urllib.urlopen(ROBOTIME_CHECKIP_URL)
-            if res.code == 200:
-                content = res.readline()
-                return json.loads(content).get("res_code")
-            else:
-                return False
+            # res = urllib.urlopen(ROBOTIME_CHECKIP_URL)
+            # if res.code == 200:
+            #     content = res.readline()
+            #     return json.loads(content).get("res_code")
+            # else:
+            return False
     def connect(self):
         # 打开调试级别2，显示详细信息;0为关闭调试信息
         self.ftp.set_debuglevel(self.debug_lv)
